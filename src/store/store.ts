@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import audioFramesReducer from './globalReducers/audioFramesReducer';
+import audioSourceReducer from './globalReducers/audioSourceReducer';
 
 const store = configureStore({
   reducer: {
-    audioFramesSlice: audioFramesReducer
+    audioFramesSlice: audioFramesReducer,
+    audioSource: audioSourceReducer
   }
 });
 

@@ -1,28 +1,32 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
-import Oscilloscope from '../components/Oscilliscope/Oscilloscope';
+import AudioFrameList from '../components/AudioFrameList/AudioFrameList';
+import AudioControls from '../components/AudioControls/AudioControls';
 
-const Home: React.FC = () => {
+export default function Home() {
+  const TITLE = 'Ionic Sonic';
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Blank</IonTitle>
+          <IonTitle>{TITLE}</IonTitle>
         </IonToolbar>
       </IonHeader>
+
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Blank</IonTitle>
+            <IonTitle size="large">{TITLE}</IonTitle>
           </IonToolbar>
         </IonHeader>
 
+        <div className="is-page-content">
+          <AudioControls />
 
-        <Oscilloscope />
+          <AudioFrameList />
+        </div>
       </IonContent>
     </IonPage>
   );
 };
-
-export default Home;

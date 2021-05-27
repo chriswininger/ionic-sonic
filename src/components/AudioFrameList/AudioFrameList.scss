@@ -1,0 +1,8 @@
+.is-audio-frame-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.is-audio-frame-list > * {
+  margin: 3px;
+}

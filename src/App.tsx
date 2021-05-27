@@ -1,4 +1,5 @@
 import { Redirect, Route } from 'react-router-dom';
+import './app.scss';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home';
