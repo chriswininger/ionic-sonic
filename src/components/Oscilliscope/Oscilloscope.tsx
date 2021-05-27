@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import useAudio from '../../utils/useAudio';
 import AudioFilesService from '../../services/AudioFilesService';
 import { RootState } from '../../store/store';
-import { useSelector } from 'react-redux';
-import { AudioFramePoint } from '../../store/globalReducers/audioFramesReducer';
+import { useDispatch, useSelector } from 'react-redux';
+import { AudioFramePoint, frameAcquired } from '../../store/globalReducers/audioFramesReducer';
 import { Nullable } from '../../utils/nullable';
 
 const CANVAS_ID = 'is-oscilloscope-canvas';
@@ -14,14 +14,12 @@ const WIDTH = 400;
 const HEIGHT = 400;
 
 export default function Oscilloscope() {
+  const dispatch = useDispatch();
   const { audioCtx, analyser } = useAudio();
   const currentFrame: Nullable<AudioFramePoint[]> =
     useSelector((state: RootState) => state.audioFramesSlice.currentFrame);
 
   useEffect(() => {
-    const canvas = document.getElementById(CANVAS_ID) as HTMLCanvasElement;
-    const canvasCtx = canvas.getContext('2d') as CanvasRenderingContext2D;
-
     AudioFilesService.get(FILE_NAME)
       .then((src: AudioBufferSourceNode) => {
         src.connect(analyser);
@@ -31,28 +29,33 @@ export default function Oscilloscope() {
         analyser.fftSize = 2048;
         const bufferLength = analyser.frequencyBinCount;
 
-        if (canvasCtx) {
-          canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
-        }
-
-        draw(canvasCtx, canvas, bufferLength);
+        startAudioFrameAcquisitionLoop(bufferLength);
       });
   }, []);
+
+  useEffect(() => {
+    const canvas = document.getElementById(CANVAS_ID) as HTMLCanvasElement;
+    const canvasCtx = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+    if (!canvasCtx || !currentFrame) {
+      return;
+    }
+
+    canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+    drawGraph(currentFrame, canvasCtx);
+  }, [currentFrame]);
 
   return (
     <canvas id={CANVAS_ID} width={WIDTH} height={HEIGHT}>
     </canvas>
   );
 
-  function draw(canvasCtx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, bufferLength: number) {
-    requestAnimationFrame(() => draw(canvasCtx, canvas, bufferLength));
-
-    if (!canvasCtx) {
-      return null;
-    }
+  function startAudioFrameAcquisitionLoop(bufferLength: number) {
+    requestAnimationFrame(() => startAudioFrameAcquisitionLoop(bufferLength));
 
     const graph = collectPointsForFrame(bufferLength);
-    drawGraph(graph, canvasCtx);
+    dispatch(frameAcquired(graph));
   }
 
   function collectPointsForFrame(bufferLength: number): AudioFramePoint[] {
